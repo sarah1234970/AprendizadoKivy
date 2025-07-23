@@ -1,0 +1,9 @@
+<ToggleStateWidget>:
+    orientation: "vertical"
+    
+    ToggleButton:
+        text: 'Ativar'
+        on_state: root.on_toggle_state(self, self.state)  # Chama o método no Python
+    
+    Label:
+        text: "Ativo" if root.is_active else "Inativo"  # Atualiza com base em `is_active`
