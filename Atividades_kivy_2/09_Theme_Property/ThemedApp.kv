@@ -1,0 +1,17 @@
+<BoxLayout>:
+    orientation: 'vertical'
+    padding: 10
+    spacing: 10
+
+    Button:
+        text: 'Primary Button'
+        background_color: app.app_theme['primary']
+        color: app.app_theme['secondary']
+    
+    Label:
+        text: 'Secondary Text'
+        color: app.app_theme['secondary']
+    
+    Button:
+        text: 'Change Theme'
+        on_press: app.change_theme()  # Chamando o método em vez de alterar diretamente

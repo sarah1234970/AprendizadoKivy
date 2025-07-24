@@ -1,0 +1,20 @@
+<AnimatedBox>:
+    orientation: 'vertical'
+    padding: 10
+    spacing: 10
+    
+    Widget:
+        size_hint: (None, None)
+        size: (root.box_size, root.box_size)
+        pos_hint: {'center_x': 0.5}
+        canvas:
+            Color:
+                rgb: (0, 0.7, 1)
+            Rectangle:
+                pos: self.pos
+                size: self.size
+    
+    Button:
+        text: 'Animate'
+        size_hint_y: 0.2
+        on_press: root.animate_box()

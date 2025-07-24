@@ -1,0 +1,11 @@
+# event_comm.kv
+<StatusDisplayWidget>:
+    Label:
+        text: 'Status: ' + root.global_state_obj.current_status
+
+<StatusChangerWidget>:
+    TextInput:
+        id: ti
+    Button:
+        text: 'Mudar Status'
+        on_press: root.global_state_obj.current_status = ti.text

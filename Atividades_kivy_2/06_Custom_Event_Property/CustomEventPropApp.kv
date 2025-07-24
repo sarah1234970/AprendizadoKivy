@@ -1,0 +1,19 @@
+<MyCustomWidget>:
+    BoxLayout:
+        orientation: 'vertical'
+        padding: 10
+        spacing: 10
+        
+        Label:
+            id: log_label
+            text: 'Message changed to: ' + root.message
+            size_hint_y: 0.2
+        
+        TextInput:
+            id: message_input
+            size_hint_y: 0.2
+        
+        Button:
+            text: 'Update Message'
+            size_hint_y: 0.2
+            on_press: root.message = message_input.text

@@ -1,0 +1,17 @@
+<UserProfileWidget>
+    orientation: 'vertical' # vai organizar os widget em coluna
+    spacing: 10 # Vai adicionar espacamentos entre os widget
+    padding: 10 # Sera margem interna
+
+    Label:
+        text: 'Nome: ' + root.user_data['name'] # vai exibir o nome
+    Label:
+        text: 'Idade: ' + str(root.user_data['age']) # vai exibidr a idade.\ convertida para string
+    Label:
+        text: 'Cidade: ' + root.user_data['city'] # vai exibir a cidade.
+
+    Button:
+        text: "Adicionar idade"
+        on_press: root.update_age() #chama o metodo que incremendta(adiciona) a idade 
+
+ 

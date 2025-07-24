@@ -1,0 +1,21 @@
+<StatusDisplayWidget>:
+    orientation: 'vertical'
+    padding: 10
+    
+    Label:
+        text: 'Current Status: ' + root.global_state_obj.current_status
+        font_size: '24sp'
+
+<StatusChangerWidget>:
+    orientation: 'vertical'
+    padding: 10
+    spacing: 10
+    
+    TextInput:
+        id: status_input
+        size_hint_y: 0.2
+    
+    Button:
+        text: 'Update Status'
+        size_hint_y: 0.2
+        on_press: root.global_state_obj.current_status = status_input.text

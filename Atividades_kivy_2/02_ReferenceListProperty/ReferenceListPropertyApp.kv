@@ -1,0 +1,27 @@
+<MovableDot>:
+    canvas:
+        Ellipse: 
+            pos: self.dot_pos
+            size: 50, 50
+
+    BoxLayout: 
+        size_hint: None, None
+        size: 400, 100
+        pos: 0, 0
+        spacing: 10
+        
+        Button:
+            text: 'Esquerda'
+            on_press: root.move_left()
+        
+        Button:
+            text: 'Direita'
+            on_press: root.move_right()
+        
+        Button:
+            text: 'Cima'
+            on_press: root.move_up()
+        
+        Button:
+            text: 'Baixo'
+            on_press: root.move_down()

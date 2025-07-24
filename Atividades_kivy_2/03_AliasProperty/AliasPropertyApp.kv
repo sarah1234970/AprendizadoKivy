@@ -1,0 +1,41 @@
+<CalculatorWidget>:
+    orientation: 'vertical'
+    padding: 10
+    spacing: 10
+
+    Label:
+        text: 'Num1: {}'.format(root.num1)
+    
+    Label:
+        text: 'Num2: {}'.format(root.num2)
+    
+    Label:
+        text: 'Soma: {}'.format(root.sum_result)
+    
+    BoxLayout:
+        size_hint_y: None
+        height: '48dp'
+        spacing: 5
+        
+        Button:
+            text: 'Definir soma = 20'
+            on_press: root.sum_result = 20
+        
+        Button:
+            text: '+ Num1'
+            on_press: root.num1 += 1
+    
+    BoxLayout:
+        size_hint_y: None
+        height: '48dp'
+        spacing: 5
+        
+        Button:
+            text: '+ Num2'
+            on_press: root.num2 += 1
+        
+        Button:
+            text: 'Reset'
+            on_press:
+                root.num1 = 10
+                root.num2 = 5
