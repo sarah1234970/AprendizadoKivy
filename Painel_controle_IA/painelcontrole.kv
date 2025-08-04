@@ -1,0 +1,36 @@
+<PainelControle>
+    orientation: 'vertical'
+    padding: 30
+    spacing: 15
+    Label:
+        text: root.status_text
+        font_size: 24
+        color: (1, 0, 0, 1) if not root.ia_ligada else (0, 1, 0, 1)
+
+    ProgressBar:
+        max: 100
+        value: root.nivel_ameaca
+        height: 30
+    
+    ToggleButton:
+        text: "Desligar IA" if root.ia_ligada else "Ligar IA"
+        on_press: root.alternar_ia()
+        size_hint_y: None 
+        height: 60
+
+    BoxLayout:
+        orientation: 'horizontal'
+        spacing: 10
+        size_hint_y: None
+        height: 30
+
+    TextInput:
+        id: comando_input
+        hint_text: "Digite qualquer coisa"
+        multiline: False
+        size_hint_x: 0.9
+
+    Button:
+        text: "Enviar"
+        on_press: root.enviar_comando(comando_input.text)
+        size_hint_x: 0.3
