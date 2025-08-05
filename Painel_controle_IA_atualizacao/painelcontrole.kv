@@ -1,0 +1,88 @@
+<PainelControle>:
+    orientation: 'vertical'
+    padding: 30
+    spacing: 15
+    
+    canvas.before:
+        Color:
+            rgba: 0.1, 0.1, 0.1, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    Label:
+        text: root.status_text
+        font_size: 24
+        color: (1, 0, 0, 1) if not root.ia_ligada else (0, 1, 0, 1)
+        canvas.before:
+            Color:
+                rgba: 0.2, 0.2, 0.2, 1
+            Rectangle:
+                pos: self.x, self.y
+                size: self.width, self.height
+
+    ProgressBar:
+        max: 100
+        value: root.nivel_ameaca
+        height: 30
+        canvas.before:
+            Color:
+                rgba: (0.8, 0, 0, 1) if root.nivel_ameaca > 70 else (0.8, 0.8, 0, 1) if root.nivel_ameaca > 30 else (0, 0.8, 0, 1)
+            Rectangle:
+                pos: self.x, self.y
+                size: self.width * self.value_normalized, self.height
+
+    ToggleButton:
+        text: "Desligar IA" if root.ia_ligada else "Ligar IA"
+        on_press: root.alternar_ia()
+        size_hint_y: None
+        height: 60
+        background_color: (0.9, 0.2, 0.2, 1) if root.ia_ligada else (0.2, 0.9, 0.2, 1)
+        color: 1, 1, 1, 1
+        font_size: 18
+        bold: True
+
+    BoxLayout:
+        orientation: 'horizontal'
+        spacing: 10
+        size_hint_y: None
+        height: 50
+        
+        TextInput:
+            id: comando_input
+            hint_text: "Digite um comando"
+            multiline: False
+            size_hint_x: 0.7
+            background_color: 0.2, 0.2, 0.2, 1
+            foreground_color: 0, 1, 0, 1
+            font_size: 16
+        
+        Button:
+            text: "Enviar"
+            on_press: root.enviar_comando(comando_input.text)
+            size_hint_x: 0.3
+            background_color: 0.3, 0.3, 0.7, 1
+            color: 1, 1, 1, 1
+            bold: True
+
+    Label:
+        text: "HISTÓRICO DE EVENTOS:"
+        font_size: 16
+        color: 0.8, 0.8, 0.8, 1
+        size_hint_y: None
+        height: 30
+
+    ScrollView:
+        size_hint: 1, 0.4
+        bar_width: 10
+        bar_color: 0.5, 0.5, 0.5, 1
+        
+        Label:
+            text: root.log_text
+            size_hint_y: None
+            height: self.texture_size[1]
+            text_size: self.width, None
+            color: 0.8, 0.8, 0.8, 1
+            font_size: 14
+            halign: 'left'
+            valign: 'top'
