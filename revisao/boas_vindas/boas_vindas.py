@@ -1,71 +1,49 @@
+from kivy.uix.button import Button
 from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
 from kivy.properties import StringProperty
 from kivy.lang import Builder
+from kivy.uix.label import Label
+from kivy.uix.textinput import TextInput
+
 
 class BoasVindasApp(App):
+     
     def build(self):
-        self.title = "Boas Vindas"
-        return BoasVindasScreen()
-    
-Builder.load_string('''
-<Boas_vindas>:
-    orientation: 'vertical'
-    padding: 10
-    spacing: 10
-    
-      Label:
-        text: '[b]App de Boas-vindas[/b]'
-        markup: True 
-        size_hint_y: None
-        height: '50dp'
-        font_size: '20sp'
-        halign: 'center'
-        valign: 'middle'
-        text_size: self.width, None
+            self.title = "Boas Vindas"
+            
+            self.layout = BoxLayout(orientation='vertical', padding=10, spacing=10)
+            
+            self.name_input = TextInput(hint_text="Digite o seu nome", multiline=False, font_size=18)
+            
+            self.message_label = Label(text="Boas-Vindas!", font_size=20,
+                                    halign='center', valign='middle')
+            
+            self.message_label.bind(size=self.message_label.setter('text_size'))
 
-    TextInput:
-        id: entrada_nome
-        hint_text: "Digite o seu nome"
-        size_hint_y: None
-        height: '50dp'
-        font_size: '18sp'
-        multiline: False
-        on_text_validate: root.on_enviar_nome()
-        padding: '10dp'
+            self.button = Button(
+                text="Enviar",
+                font_size=18,
+                size_hint=(1,0.3))
+            
+            self.button.bind(on_press=self.show_message)
 
-    Button:
-        text: 'Enviar'
-        size_hint_y: None
-        height: '50dp'
-        font_size: "20sp"
-        background_normal: ""
-        background_color: (0.2, 0.6, 0.8, 1)
-        on_release: root.on_enviar_nome()
-
-    Label:
-        text: root.mensagem
-        halign: 'center'
-        valign: 'middle'
-        text_size: self.width, None
-        size_hint_y: None
-        height: '50dp'
-        font_size: '18sp'
-        color: 0.2, 0.4, 0.6, 1
-        bold: True
-''')
-
-class BoasVindasScreen(BoxLayout):
-    mensagem = StringProperty("Boas-Vindas!")
-    
-    def on_enviar_nome(self,):
-        nome_usuario = self.ids.entrada_nome.text.strip()
-        if nome_usuario:
-            self.mensagem = f"Olá, {nome_usuario}!"
+            self.layout.add_widget(self.name_input)
+            self.layout.add_widget(self.message_label)
+            self.layout.add_widget(self.button)
+            
+            return self.layout
+        
+    def show_message(self, instance):
+            
+        name = self.name_input.text.strip()
+        
+        if name:
+            self.message_label.text = f"Olá, {name}!"
+            
         else:
-            self.mensagem = "Por favor, digite seu nome."
-
-
+            self.message_label.text = "Por favor, digite seu nome."
+            
 
 if __name__ == '__main__':
     BoasVindasApp().run()    
