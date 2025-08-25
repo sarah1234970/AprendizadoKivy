@@ -1,0 +1,136 @@
+<BaseScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        padding: 10
+        spacing: 10
+        
+        Label:
+            id: title_label
+            size_hint_y: 0.1
+            font_size: '24sp'
+            bold: True
+            text: root.title
+            
+        BoxLayout:
+            size_hint_y: 0.1
+            
+        Widget:
+            size_hint_y: 0.8
+
+<HomeScreen>:
+    title: 'Tela Principal'
+    BoxLayout:
+        orientation: 'vertical'
+        padding: 10
+        spacing: 10
+        
+        Label:
+            text: root.title
+            font_size: '24sp'
+            bold: True
+            size_hint_y: 0.2
+            
+        GridLayout:
+            cols: 1
+            spacing: 10
+            size_hint_y: 0.8
+            
+            Button:
+                text: 'Ir para Tela 1'
+                on_press: root.manager.current = 'tela1'
+                
+            Button:
+                text: 'Ir para Tela 2'
+                on_press: root.manager.current = 'tela2'
+                
+            Button:
+                text: 'Ir para Tela 3'
+                on_press: root.manager.current = 'tela3'
+                
+            Button:
+                text: 'Ir para Tela 4'
+                on_press: root.manager.current = 'tela4'
+                
+            Button:
+                text: 'Ir para Tela 5'
+                on_press: root.manager.current = 'tela5'
+
+<Tela1>:
+    name: 'tela1'
+    BoxLayout:
+        orientation: 'vertical'
+        padding: 20
+        spacing: 10
+        
+        Label:
+            text: 'Tela 1'
+            font_size: '24sp'
+            size_hint_y: 0.2
+
+        Button:
+            text: 'Voltar para a página inicial'
+            on_release: root.manager.current = 'home'
+
+<Tela2>:
+    name: 'tela2'
+    BoxLayout:
+        orientation: 'vertical'
+        padding: 20
+        spacing: 10
+        
+        Label:
+            text: 'Tela 2'
+            font_size: '24sp'
+            size_hint_y: 0.2
+
+        Button:
+            text: 'Voltar para a página inicial'
+            on_release: root.manager.current = 'home'
+
+<Tela3>:
+    name: 'tela3'
+    BoxLayout:
+        orientation: 'vertical'
+        padding: 20
+        spacing: 10
+        
+        Label:
+            text: 'Tela 3'
+            font_size: '24sp'
+            size_hint_y: 0.2
+
+        Button:
+            text: 'Voltar para a página inicial'
+            on_release: root.manager.current = 'home'
+
+<Tela4>:
+    name: 'tela4'
+    BoxLayout:
+        orientation: 'vertical'
+        padding: 20
+        spacing: 10
+        
+        Label:
+            text: 'Tela 4'
+            font_size: '24sp'
+            size_hint_y: 0.2
+
+        Button:
+            text: 'Voltar para a página inicial'
+            on_release: root.manager.current = 'home'
+
+<Tela5>:
+    name: 'tela5'
+    BoxLayout:
+        orientation: 'vertical'
+        padding: 20
+        spacing: 10
+        
+        Label:
+            text: 'Tela 5'
+            font_size: '24sp'
+            size_hint_y: 0.2
+
+        Button:
+            text: 'Voltar para a página inicial'
+            on_release: root.manager.current = 'home'
