@@ -1,3 +1,5 @@
-# ambientes virtuais 
+# Ambientes virtuais
 meu_ambiente_kivy/
-
+venv/
+env/
+*.venv/
