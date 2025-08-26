@@ -18,9 +18,9 @@ class IdadeApp(App):
         self.layout.add_widget(btn_adicionar)
         
         btn_remover = Button (text='Remover Idade', on_press=self.remover_idade, font_size=20)
-        self.layout.add_widget(btn_remover) # type: ignore
+        self.layout.add_widget(btn_remover)
         
-        btn_verificar = Button(text='Verificar Acesso', on_press=self.verificar_acesso, font_size=20)#type: ignore
+        btn_verificar = Button(text='Verificar Acesso', on_press=self.verificar_acesso, font_size=20)
         self.layout.add_widget(btn_verificar)
         
         self.label_acesso = Label(text='')
