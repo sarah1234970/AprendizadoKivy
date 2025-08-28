@@ -148,6 +148,11 @@ class IdadeApp(App):
         if self.idade >= 18:
             self.label_acesso.text = '✅ Acesso Permitido. Liberado!'
             self.label_acesso.color = (0, 0.6, 0, 1)  # Verde
+            
+        elif self.idade >= 60:
+            self.label_acesso.text = '✅ Você é idoso e merece todo respeito! ❤️'
+            self.label_acesso.color = (0, 0.6, 0, 1)  # Verde'
+            
         else:
             self.label_acesso.text = '❌ Acesso Negado. Que pena, você é menor de idade'
             self.label_acesso.color = (0.8, 0, 0, 1)  # Vermelho
