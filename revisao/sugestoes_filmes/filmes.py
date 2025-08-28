@@ -6,6 +6,10 @@ from kivy.lang import Builder
 from kivy.uix.button import Button
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.spinner import Spinner
+from kivy.uix.image import Image
+from kivy.uix.togglebutton import ToggleButton
+
+
 import random
 
 
@@ -18,6 +22,25 @@ class FilmesApp(App):
             multiline=False,
             size_hint=(1, 0.1)
             )
+        
+        self.genero_escolhido = None
+        
+        botao_genero = ToggleButton(
+            text="Selecione o genero do filme",
+            size_hint=(1, 0.1),
+            group = "genero_escolhido"
+            
+        )
+        botao.bind(on_press=self.selecionar_genero)
+        botao_genero.add_widget(botao)
+        
+        botao_genero= BoxLayout(
+            size_hint=(1, 0.1),
+            orientation="vertical",
+            spacing=10,
+            padding=10
+        )
+        
         #genero do filme 
         self.spinner = Spinner(
             text="Selecione o genero do filme",
@@ -43,12 +66,19 @@ class FilmesApp(App):
         layout.add_widget(self.spinner)
         layout.add_widget(botao)
         layout.add_widget(self.mensagem_label)
+        
         return layout
-    
+
+        
     #Quando o botao for iniciado
     def sugerir_filme(self, instance):
         filmes = {
-        "Comédia":["As Branquelas","Todo Mundo em Pânico","Garotas Malvadas" ],
+        "Comédia":[
+            {"titulo:","As Branquelas","(2004)",},
+            {"Todo Mundo em Pânico","(2000)"},
+            {"Meninas Malvadas", "(2004)", "1h 37min","img: https://br.web.img3.acsta.net/pictures/210/087/21008705_20130527194056821.jpg"}, 
+            ],
+        
         "Terror":["Invocação do Mal","It A Coisa","A Hora do Pesadelo" ],
         "Ação":["Velozes e Furiosos","Missão Impossível","Vingadores: Ultimato" ],
         "Drama":["A Procura da Felicidade","O Menino do Pijama Listrado","Clube da Luta" ],
