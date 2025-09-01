@@ -1,0 +1,54 @@
+<ScreenManager>:
+    BoasVindasScreen:
+    SugestaoFilmesScreen:
+
+<BoasVindasScreen>:
+    name: 'boas_vindas'
+    BoxLayout:
+        orientation: 'vertical'
+        padding: 10
+        spacing: 10
+        
+        TextInput:
+            id: nome_input
+            hint_text: "Digite seu nome"
+            multiline: False
+            font_size: 18
+        
+        Button:
+            text: "Continuar"
+            font_size: 18
+            on_press:
+                app.root.current = 'sugestao_filmes'
+                app.root.get_screen('sugestao_filmes').set_nome(nome_input.text)
+
+<SugestaoFilmesScreen>:
+    name: 'sugestao_filmes'
+    BoxLayout:
+        orientation: 'vertical'
+        padding: 10
+        spacing: 10
+        
+        Label:
+            id: mensagem_label
+            text: "Bem-vindo! Insira seu nome na tela anterior."
+            font_size: 20
+        
+        Spinner:
+            id: genero_spinner
+            text: "Selecione o gênero do filme"
+            values: ["Ação", "Comédia", "Animação"]
+            size_hint_y: None
+            height: 44
+        
+        Button:
+            text: "Sugerir Filme"
+            on_press: app.sugerir_filme()
+        
+        Label:
+            id: filme_sugerido
+            text: "O filme sugerido aparecerá aqui."
+            font_size: 18
+
+    def set_nome(self, nome):
+        self.ids.mensagem_label.text = f"Olá, {nome}! Escolha um gênero de filme."
