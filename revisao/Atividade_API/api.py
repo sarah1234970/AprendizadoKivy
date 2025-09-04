@@ -7,10 +7,19 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
 from kivy.uix.button import Button
 from kivy.clock import Clock
+from googletrans import Translator
 
 class JokeApp(App):
     def build(self):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.translator = Translator()
+        self.language = 'pt'
+    def build(self):
         self.layout = BoxLayout(orientation='vertical', padding=20, spacing=10)
+        self.lang_button = Button(text="PT/EN", size_hint=(1, 0.1), font_size=14)
+        self.lang_button.bind(on_press=self.toggle_language)
+        
         self.joke_label = Label(text="Clique no botão para uma piada!",
                         font_size=18,
                         halign='center',
