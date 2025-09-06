@@ -12,36 +12,35 @@ import random
 
 filmes = {
     "Comédia": [
-        {"titulo": "As Branquelas", "ano": 2004, "duração": "1h 49min", "img": "https://br.web.img2.acsta.net/c_310_420/medias/nmedia/18/97/52/82/20534159.jpg"},
-        {"titulo": "Todo Mundo em Pânico", "ano": 2000, "duração": "1h 28min", "img": "https://www.google.com/url?sa=i&url=https%3A%2F%2Fpt.wikipedia.org%2Fwiki%2FScary_Movie&psig=AOvVaw1YcZGbJ0hkruW3vocnnQLP&ust=1756604404984000&source=images&cd=vfe&opi=89978449&ved=0CBEQjRxqFwoTCIiEt7-zsY8DFQAAAAAdAAAAABAE"},
-        {"titulo": "Meninas Malvadas", "ano": 2004, "duração": "1h 37min", "img": "https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.papodecinema.com.br%2Ffilmes%2Fmeninas-malvadas%2F&psig=AOvVaw0UU8akFz_XM-gfoOoZ7aVc&ust=1756604494173000&source=images&cd=vfe&opi=89978449&ved=0CBEQjRxqFwoTCLjNxeizsY8DFQAAAAAdAAAAABAE"},
+        {"titulo": "As Branquelas", "ano": 2004, "duração": "1h 49min", "img": "imagens/branquelas.jpg"},
+        {"titulo": "Todo Mundo em Pânico", "ano": 2000, "duração": "1h 28min", "img": "imagens/panico.jpg"},
+        {"titulo": "Meninas Malvadas", "ano": 2004, "duração": "1h 37min", "img": "imagens/meninas.jpg"},
     ],
     "Terror": [
-        {"titulo": "Invocação do Mal", "ano": 2013, "duração": "1h 52min", "img": "https://play-lh.googleusercontent.com/DOruIEOIs1eIXiUfB5Ic_7q_q1frR093BOQ1uA94RgJkUD6x1Vx6twC3IN9ZqPJFt4t9RaEr1paf_dJEoGc"},
-        {"titulo": "It: A Coisa", "ano": 2017, "duração": "2h 15min", "img": "https://br.web.img3.acsta.net/pictures/17/09/1709265.jpg"},
-        {"titulo": "A Hora do Pesadelo", "ano": 1984, "duração": "1h 31min", "img": "https://br.web.img3.acsta.net/pictures/14/12/1412670.jpg"},
+        {"titulo": "Invocação do Mal", "ano": 2013, "duração": "1h 52min", "img": "imagens/invocacao.png"},
+        {"titulo": "It: A Coisa", "ano": 2017, "duração": "2h 15min", "img": "imagens/it.jpg"},
+        {"titulo": "A Hora do Pesadelo", "ano": 1984, "duração": "1h 31min", "img": "imagens/pesadelo.png"},
     ],
     "Ação": [
-        {"titulo": "Velozes e Furiosos", "ano": 2001, "duração": "1h 46min", "img": "https://br.web.img3.acsta.net/pictures/14/12/1412670.jpg"},
-        {"titulo": "Missão Impossível", "ano": 1996, "duração": "1h 50min", "img": "https://br.web.img3.acsta.net/pictures/14/12/1412670.jpg"},
-        {"titulo": "Vingadores: Ultimato", "ano": 2019, "duração": "3h 02min", "img": "https://br.web.img3.acsta.net/pictures/14/12/1412670.jpg"},
+        {"titulo": "Velozes e Furiosos", "ano": 2001, "duração": "1h 46min", "img": "imagens/velozes.webp"},
+        {"titulo": "Missão Impossível", "ano": 1996, "duração": "1h 50min", "img": "imagens/missao.jpg"},
+        {"titulo": "Vingadores: Ultimato", "ano": 2019, "duração": "3h 02min", "img": "imagens/vingadores.jpg"},
     ],
     "Drama": [
-        {"titulo": "A Procura da Felicidade", "ano": 2006, "duração": "1h 57min", "img": "https://br.web.img3.acsta.net/pictures/14/12/1412670.jpg"},
-        {"titulo": "O Menino do Pijama Listrado", "ano": 2008, "duração": "1h 34min", "img": "https://br.web.img3.acsta.net/pictures/14/12/1412670.jpg"},
-        {"titulo": "Clube da Luta", "ano": 1999, "duração": "2h 19min", "img": "https://br.web.img3.acsta.net/pictures/14/12/1412670.jpg"},
+        {"titulo": "A Procura da Felicidade", "ano": 2006, "duração": "1h 57min", "img": "imagens/felicidade.jpg"},
+        {"titulo": "O Menino do Pijama Listrado", "ano": 2008, "duração": "1h 34min", "img": "imagens/pijama.jpg"},
+        {"titulo": "Clube da Luta", "ano": 1999, "duração": "2h 19min", "img": "imagens/luta.jpg"},
     ],
     "Animação": [
-        {"titulo": "Procurando Nemo", "ano": 2003, "duração": "1h 40min", "img": "https://br.web.img3.acsta.net/pictures/14/12/1412670.jpg"},
-        {"titulo": "Divertidamente", "ano": 2015, "duração": "1h 35min", "img": "https://br.web.img3.acsta.net/pictures/14/12/1412670.jpg"},
-        {"titulo": "Shrek", "ano": 2001, "duração": "1h 30min", "img": "https://br.web.img3.acsta.net/pictures/14/12/1412670.jpg"},
+        {"titulo": "Procurando Nemo", "ano": 2003, "duração": "1h 40min", "img": "imagens/nemo.jpg"},
+        {"titulo": "Divertidamente", "ano": 2015, "duração": "1h 35min", "img": "imagens/divertidamente.webp"},
+        {"titulo": "Shrek", "ano": 2001, "duração": "1h 30min", "img": "imagens/shrek.webp"},
     ]
 }
 
 class FilmesApp(App):
     def build(self):
-        Window.clearcolor = (0.08, 0.08, 0.08, 1)  # fundo mais escuro
-
+        Window.clearcolor = (0.08, 0.08, 0.08, 1)
         layout = BoxLayout(orientation='vertical', padding=30, spacing=18)
 
         self.nome_input = TextInput(
@@ -63,12 +62,13 @@ class FilmesApp(App):
             color=(1, 1, 1, 1)
         )
 
+        # BOTÃO SUGERIR - MUDE A COR AQUI ↓
         botao_sugerir = Button(
             text="Sugerir Filme",
             size_hint=(1, 0.09),
             font_size=20,
             background_normal='',
-            background_color=(0.2, 0.6, 0.2, 1),  # verde
+            background_color=(0.3, 0.7, 0.3, 1),  # VERDE MAIS CLARO
             color=(1, 1, 1, 1)
         )
         botao_sugerir.bind(on_press=self.sugerir_filme)
@@ -78,7 +78,7 @@ class FilmesApp(App):
             size_hint=(1, 0.09),
             font_size=20,
             background_normal='',
-            background_color=(0.7, 0.2, 0.2, 1),  # vermelho
+            background_color=(0.7, 0.2, 0.2, 1),
             color=(1, 1, 1, 1)
         )
         botao_limpar.bind(on_press=self.limpar_campos)
@@ -106,7 +106,6 @@ class FilmesApp(App):
         layout.add_widget(botao_limpar)
         layout.add_widget(self.mensagem_label)
         layout.add_widget(self.imagem_filme)
-
 
         return layout
 
