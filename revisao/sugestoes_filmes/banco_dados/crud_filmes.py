@@ -4,14 +4,15 @@ from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
 from kivy.uix.button import Button
 from kivy.uix.spinner import Spinner
+from kivy.app import App
 
-import sqlite3  
-import random
+import sqlite3
 
-def conexao_banco():
-    conn = sqlite3.connect('filmes.db')  
-    cur = conn.cursor()
+# faz a conexão com o banco de dados SQLite
+con = sqlite3.connect('filmes.db')
+cur = con.cursor()
 
+def criar_tabela():
     cur.execute("""
         CREATE TABLE IF NOT EXISTS filmes (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -20,63 +21,130 @@ def conexao_banco():
             ano INTEGER
         )
     """)
-    conn.commit()
-    return conn 
+    con.commit()
 
-        
 class TelaCadastro(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         layout = BoxLayout(orientation='vertical', padding=20, spacing=10)
         
         self.titulo_input = TextInput(hint_text='Título do Filme', size_hint=(1, 0.1))
-        self.genero_input = Spinner(text='Escolha o gênero', values=['Comédia', 'Ação', 'Animação'], size_hint=(1, 0.1))
-        self.ano_input = TextInput(hint_text='Seu Nome', size_hint=(1, 0.1))
-        self.cadastrar_btn = Button(text='Cadastrar Filme', size_hint=(1, 0.1))
+        self.genero_input = Spinner(
+            text='Escolha o gênero', 
+            values=['Comédia', 'Ação', 'Animação', 'Drama', 'Terror'],
+            size_hint=(1, 0.1)
+        )
+        self.ano_input = TextInput(hint_text='Ano de Lançamento', size_hint=(1, 0.1), input_filter='int')
         
         btn_salvar = Button(text="Salvar no Banco", size_hint=(1, 0.1))
         btn_salvar.bind(on_press=self.salvar_no_banco)
         
         btn_listar = Button(text="Listar Filmes", size_hint=(1, 0.1))
-        btn_listar.bind(on_press=self.listar_filmes)
+        btn_listar.bind(on_press=self.ir_para_lista)
         
+        layout.add_widget(Label(text="Cadastro de Filmes", size_hint=(1, 0.1), font_size=20))
         layout.add_widget(self.titulo_input)
         layout.add_widget(self.genero_input)
-        layout.add_widget(self.ano_input)   
-        layout.add_widget(self.cadastrar_btn)
+        layout.add_widget(self.ano_input)
         layout.add_widget(btn_salvar)
         layout.add_widget(btn_listar)
-        self.layout.add_widget(layout)
         
-    def adicionar_fime(self, instance):
-        titulo = self.titulo_input.text
+        self.add_widget(layout)
+        
+    def salvar_no_banco(self, instance):
+        titulo = self.titulo_input.text.strip()
         genero = self.genero_input.text
-        ano = self.ano_input.text
+        ano = self.ano_input.text.strip()
         
-        if titulo and genero and ano:
-            con = conexao_banco()
-            cur = con.cursor()
-            cur.execute("INSERT INTO filmes (titulo, genero, ano) VALUES (?, ?, ?)", (titulo, genero, ano))
-            self.manager.get_screen('sugestao').adicionar_filme(titulo, genero, ano)
-            self.titulo_input.text = ''
-            self.genero_input.text = 'Escolha o gênero'
-            self.ano_input.text = ''
-            
+        if titulo and genero != 'Escolha o gênero' and ano:
+            try:
+                ano_int = int(ano)
+                cur.execute("INSERT INTO filmes (titulo, genero, ano) VALUES (?, ?, ?)", 
+                           (titulo, genero, ano_int))
+                con.commit()
+                
+                # Limpar campos
+                self.titulo_input.text = ''
+                self.genero_input.text = 'Escolha o gênero'
+                self.ano_input.text = ''
+                
+                print("Filme salvo com sucesso!")
+            except ValueError:
+                print("Erro: Ano deve ser um número")
+        else:
+            print("Preencha todos os campos!")
+    
+    def ir_para_lista(self, instance):
+        self.manager.current = 'listagem'
+        # vai atualizar a lista
+        tela_lista = self.manager.get_screen('listagem')
+        tela_lista.listar_filmes()
+
+class FilmesItem(BoxLayout):
+    def __init__(self, filme, **kwargs):
+        super().__init__(**kwargs)
+        self.orientation = 'horizontal'
+        self.size_hint_y = None
+        self.height = 50
+        self.filme_id = filme[0]
+        
+        
+        lbl_id = Label(text=str(filme[0]), size_hint_x=0.1)
+        lbl_titulo = Label(text=filme[1], size_hint_x=0.4)
+        lbl_genero = Label(text=filme[2], size_hint_x=0.2)
+        lbl_ano = Label(text=str(filme[3]), size_hint_x=0.1)
+        
+        # os botões de editar e deletar
+        btn_editar = Button(text='Editar', size_hint_x=0.1)
+        btn_editar.bind(on_press=self.editar_filme)
+        
+        btn_deletar = Button(text='Deletar', size_hint_x=0.1)
+        btn_deletar.bind(on_press=self.deletar_filme)
+        
+        self.add_widget(lbl_id)
+        self.add_widget(lbl_titulo)
+        self.add_widget(lbl_genero)
+        self.add_widget(lbl_ano)
+        self.add_widget(btn_editar)
+        self.add_widget(btn_deletar)
+    
+    def editar_filme(self, instance):
+        # vai buscar os dados do filme e carregar na tela de edição
+        cur.execute("SELECT * FROM filmes WHERE id=?", (self.filme_id,))
+        filme = cur.fetchone()
+        
+        if filme:
+            tela_editar = self.parent.parent.parent.manager.get_screen('editar')
+            tela_editar.carregar_dados(filme[0], filme[1], filme[2], filme[3])
+            self.parent.parent.parent.manager.current = 'editar'
+    
+    def deletar_filme(self, instance):
+        cur.execute("DELETE FROM filmes WHERE id=?", (self.filme_id,))
+        con.commit()
+        # vai atualizar a lista
+        tela_lista = self.parent.parent.parent.manager.get_screen('listagem')
+        tela_lista.listar_filmes()
+
 class TelaListagem(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.layout = BoxLayout(orientation='vertical', padding=20, spacing=10)
         
-        self.grid = BoxLayout(orientation='vertical', size_hint_y=None)
+        # ScrollView para a lista
+        from kivy.uix.scrollview import ScrollView
+        scroll = ScrollView()
+        
+        self.grid = BoxLayout(orientation='vertical', size_hint_y=None, spacing=10)
         self.grid.bind(minimum_height=self.grid.setter('height'))
-        self.layout.add_widget(self.grid)
+        scroll.add_widget(self.grid)
         
-        btn_new = Button(text="Novo Filme", size_hint=(1, 0.1))
-        btn_new.bind(on_press=self.novo_filme)
-        self.layout.add_widget(btn_new)
+        btn_novo = Button(text="Novo Filme", size_hint=(1, 0.1))
+        btn_novo.bind(on_press=self.ir_para_cadastro)
         
-        self.label = Label(text='Lista de Filmes', font_size=20)
-        self.layout.add_widget(self.label)
+        self.layout.add_widget(Label(text="Lista de Filmes", size_hint=(1, 0.1), font_size=20))
+        self.layout.add_widget(scroll)
+        self.layout.add_widget(btn_novo)
+        
         self.add_widget(self.layout)
         
     def on_pre_enter(self, *args):
@@ -84,80 +152,94 @@ class TelaListagem(Screen):
         
     def listar_filmes(self):
         self.grid.clear_widgets()
-        cur.execute("SELECT * FROM filmes")
+        cur.execute("SELECT * FROM filmes ORDER BY titulo")
         filmes = cur.fetchall()
-        for filmes in filmes:
-            item = FilmesItem(filmes)
-            self.grid.add_widget(item)
+        
+        if not filmes:
+            self.grid.add_widget(Label(text="Nenhum filme cadastrado"))
+        else:
+            for filme in filmes:
+                item = FilmesItem(filme)
+                self.grid.add_widget(item)
     
-    def delet_fime(self, filme_id):
-        cur.execute("DELETE FROM filmes WHERE id=?", (filme_id,))
-        con.commit()
-        self.listar_filmes()
-
-    def editar_fime(self, filme_id, titulo, genero, ano):
-        tela_editar = self.manager.get_screen('editar')
-        tela_editar.carregar_dados(filme_id, titulo, genero, ano)
-        self.manager.current = 'editar'        
+    def ir_para_cadastro(self, instance):
+        self.manager.current = 'cadastro'
 
 class TelaEditar(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         layout = BoxLayout(orientation='vertical', padding=20, spacing=10)
-        self.filme_id_input = TextInput(hint_text='ID do Filme', size_hint=(1, 0.1))
         
-        self.id_label = Label(text='ID do Filme', size_hint=(1, 0.1))
+        self.filme_id = None
+        
         self.titulo_input = TextInput(hint_text='Título do Filme', size_hint=(1, 0.1))
-        self.genero_input = Spinner(text='Escolha o gênero', values=['Comédia', 'Ação', 'Animação'], size_hint=(1, 0.1))
-        self.ano_input = TextInput(hint_text='Seu Nome', size_hint=(1, 0.1))
+        self.genero_input = Spinner(
+            text='Escolha o gênero', 
+            values=['Comédia', 'Ação', 'Animação', 'Drama', 'Terror'],
+            size_hint=(1, 0.1)
+        )
+        self.ano_input = TextInput(hint_text='Ano de Lançamento', size_hint=(1, 0.1), input_filter='int')
         
         btn_salvar = Button(text="Salvar Alterações", size_hint=(1, 0.1))
         btn_salvar.bind(on_press=self.salvar_alteracoes)
         
-        btn_retornar = Button(text="Voltar para Lista", size_hint=(1, 0.1))
-        btn_retornar.bind(on_press=self.voltar_para_lista)
+        btn_voltar = Button(text="Voltar para Lista", size_hint=(1, 0.1))
+        btn_voltar.bind(on_press=self.voltar_para_lista)
         
-        layout.add_widget(self.id_label)
-        layout.add_widget(self.filme_id_input)
+        layout.add_widget(Label(text="Editar Filme", size_hint=(1, 0.1), font_size=20))
         layout.add_widget(self.titulo_input)
         layout.add_widget(self.genero_input)
         layout.add_widget(self.ano_input)
         layout.add_widget(btn_salvar)
-        layout.add_widget(btn_retornar)
+        layout.add_widget(btn_voltar)
+        
         self.add_widget(layout)
         
     def carregar_dados(self, filme_id, titulo, genero, ano):
-        self.filme_id_input.text = str(filme_id)
+        self.filme_id = filme_id
         self.titulo_input.text = titulo
         self.genero_input.text = genero
-        self.ano_input.text = str (ano)
+        self.ano_input.text = str(ano)
         
     def salvar_alteracoes(self, instance):
-        filmes_id = self.filme_id_input.text
-        titulo = self.titulo_input.text
+        titulo = self.titulo_input.text.strip()
         genero = self.genero_input.text
-        ano = self.ano_input.text
+        ano = self.ano_input.text.strip()
         
-        if filmes_id and titulo and genero and ano:
-            cur.execute("UPDATE filmes SET titulo=?, genero=?, ano=? WHERE id=?", (titulo, genero, ano, filmes_id))
-            con.commit()
-            self.manager.get_screen('listagem').listar_filmes()
-            self.manager.current = 'listagem'
+        if titulo and genero != 'Escolha o gênero' and ano and self.filme_id:
+            try:
+                ano_int = int(ano)
+                cur.execute("UPDATE filmes SET titulo=?, genero=?, ano=? WHERE id=?", 
+                           (titulo, genero, ano_int, self.filme_id))
+                con.commit()
+                self.voltar_para_lista(None)
+            except ValueError:
+                print("Erro: Ano deve ser um número")
+        else:
+            print("Preencha todos os campos!")
             
     def voltar_para_lista(self, instance):
         self.manager.current = 'listagem'
-class FilmesItem(BoxLayout):
-    def __init__(self, filmes, **kwargs):
-        super().__init__(**kwargs)
-        self.orientation = 'horizontal'
-        self.size_hint_y = None
-        self.height = 40
+        # Atualizar lista
+        tela_lista = self.manager.get_screen('listagem')
+        tela_lista.listar_filmes()
 
-        ibl = Label(text=str(filmes[0]), size_hint_x=0.1)
-        btn_editar = Button(text='Editar', size_hint_x=0.2)
-        btn_deletar = Button(text='Deletar', size_hint_x=0.2)
-        btn_excluir = Button(text='Excluir', size_hint_x=0.2)
+class GerenciadorTelas(ScreenManager):
+    pass
 
-        lbl_titulo = Label(text=filmes[1], size_hint_x=0.3)
+class CrudFilmesApp(App):
+    def build(self):
+        # criar tabela caso nao exista
+        criar_tabela()
         
+        gerenciador = GerenciadorTelas()
         
+        # Adicionar telas
+        gerenciador.add_widget(TelaCadastro(name='cadastro'))
+        gerenciador.add_widget(TelaListagem(name='listagem'))
+        gerenciador.add_widget(TelaEditar(name='editar'))
+        
+        return gerenciador
+
+if __name__ == "__main__":
+    CrudFilmesApp().run()
