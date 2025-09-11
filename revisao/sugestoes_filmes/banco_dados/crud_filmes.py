@@ -4,11 +4,12 @@ from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
 from kivy.uix.button import Button
 from kivy.uix.spinner import Spinner
+from kivy.uix.scrollview import ScrollView
 from kivy.app import App
 
 import sqlite3
 
-# faz a conexão com o banco de dados SQLite
+# Conexão global com o banco
 con = sqlite3.connect('filmes.db')
 cur = con.cursor()
 
@@ -22,6 +23,52 @@ def criar_tabela():
         )
     """)
     con.commit()
+
+class FilmesItem(BoxLayout):
+    def __init__(self, filme, manager, **kwargs):
+        super().__init__(**kwargs)
+        self.manager = manager  # Recebe a referência do manager
+        self.orientation = 'horizontal'
+        self.size_hint_y = None
+        self.height = 50
+        self.filme_id = filme[0]
+        
+        # Labels com informações do filme
+        lbl_id = Label(text=str(filme[0]), size_hint_x=0.1)
+        lbl_titulo = Label(text=filme[1], size_hint_x=0.4)
+        lbl_genero = Label(text=filme[2], size_hint_x=0.2)
+        lbl_ano = Label(text=str(filme[3]), size_hint_x=0.1)
+        
+        # Botões de ação
+        btn_editar = Button(text='Editar', size_hint_x=0.1)
+        btn_editar.bind(on_press=self.editar_filme)
+        
+        btn_deletar = Button(text='Deletar', size_hint_x=0.1)
+        btn_deletar.bind(on_press=self.deletar_filme)
+        
+        self.add_widget(lbl_id)
+        self.add_widget(lbl_titulo)
+        self.add_widget(lbl_genero)
+        self.add_widget(lbl_ano)
+        self.add_widget(btn_editar)
+        self.add_widget(btn_deletar)
+    
+    def editar_filme(self, instance):
+        # Buscar dados do filme
+        cur.execute("SELECT * FROM filmes WHERE id=?", (self.filme_id,))
+        filme = cur.fetchone()
+        
+        if filme:
+            tela_editar = self.manager.get_screen('editar')
+            tela_editar.carregar_dados(filme[0], filme[1], filme[2], filme[3])
+            self.manager.current = 'editar'
+    
+    def deletar_filme(self, instance):
+        cur.execute("DELETE FROM filmes WHERE id=?", (self.filme_id,))
+        con.commit()
+        # Atualizar lista
+        tela_lista = self.manager.get_screen('listagem')
+        tela_lista.listar_filmes()
 
 class TelaCadastro(Screen):
     def __init__(self, **kwargs):
@@ -76,53 +123,8 @@ class TelaCadastro(Screen):
     
     def ir_para_lista(self, instance):
         self.manager.current = 'listagem'
-        # vai atualizar a lista
+        # Atualizar lista ao mudar de tela
         tela_lista = self.manager.get_screen('listagem')
-        tela_lista.listar_filmes()
-
-class FilmesItem(BoxLayout):
-    def __init__(self, filme, **kwargs):
-        super().__init__(**kwargs)
-        self.orientation = 'horizontal'
-        self.size_hint_y = None
-        self.height = 50
-        self.filme_id = filme[0]
-        
-        
-        lbl_id = Label(text=str(filme[0]), size_hint_x=0.1)
-        lbl_titulo = Label(text=filme[1], size_hint_x=0.4)
-        lbl_genero = Label(text=filme[2], size_hint_x=0.2)
-        lbl_ano = Label(text=str(filme[3]), size_hint_x=0.1)
-        
-        # os botões de editar e deletar
-        btn_editar = Button(text='Editar', size_hint_x=0.1)
-        btn_editar.bind(on_press=self.editar_filme)
-        
-        btn_deletar = Button(text='Deletar', size_hint_x=0.1)
-        btn_deletar.bind(on_press=self.deletar_filme)
-        
-        self.add_widget(lbl_id)
-        self.add_widget(lbl_titulo)
-        self.add_widget(lbl_genero)
-        self.add_widget(lbl_ano)
-        self.add_widget(btn_editar)
-        self.add_widget(btn_deletar)
-    
-    def editar_filme(self, instance):
-        # vai buscar os dados do filme e carregar na tela de edição
-        cur.execute("SELECT * FROM filmes WHERE id=?", (self.filme_id,))
-        filme = cur.fetchone()
-        
-        if filme:
-            tela_editar = self.parent.parent.parent.manager.get_screen('editar')
-            tela_editar.carregar_dados(filme[0], filme[1], filme[2], filme[3])
-            self.parent.parent.parent.manager.current = 'editar'
-    
-    def deletar_filme(self, instance):
-        cur.execute("DELETE FROM filmes WHERE id=?", (self.filme_id,))
-        con.commit()
-        # vai atualizar a lista
-        tela_lista = self.parent.parent.parent.manager.get_screen('listagem')
         tela_lista.listar_filmes()
 
 class TelaListagem(Screen):
@@ -131,7 +133,6 @@ class TelaListagem(Screen):
         self.layout = BoxLayout(orientation='vertical', padding=20, spacing=10)
         
         # ScrollView para a lista
-        from kivy.uix.scrollview import ScrollView
         scroll = ScrollView()
         
         self.grid = BoxLayout(orientation='vertical', size_hint_y=None, spacing=10)
@@ -159,7 +160,8 @@ class TelaListagem(Screen):
             self.grid.add_widget(Label(text="Nenhum filme cadastrado"))
         else:
             for filme in filmes:
-                item = FilmesItem(filme)
+                # Passa a referência do manager para o FilmesItem
+                item = FilmesItem(filme, self.manager)
                 self.grid.add_widget(item)
     
     def ir_para_cadastro(self, instance):
@@ -229,7 +231,7 @@ class GerenciadorTelas(ScreenManager):
 
 class CrudFilmesApp(App):
     def build(self):
-        # criar tabela caso nao exista
+        # criar tabela se não existir
         criar_tabela()
         
         gerenciador = GerenciadorTelas()
