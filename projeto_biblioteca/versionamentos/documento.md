@@ -4,13 +4,14 @@
 Este é um sistema simples de biblioteca educacional desenvolvido em Python usando o framework Kivy para interface gráfica e SQLite para armazenamento de dados. O sistema permite login, cadastro de usuários, empréstimo de livros (CRUD básico) e visualização do perfil do usuário.
 
 ## Versão Atual
-**v1.1.0** - Corretiva
+**v1.2.0** - Adaptativa
 
 ## Funcionalidades
 - Tela de login e cadastro de usuário
 - Lista de livros disponíveis
 - Funções de empréstimo e devolução de livros
 - Visualização do perfil do usuário e seus empréstimos
+- Campo de telefone opcional no cadastro
 
 ## Estrutura do Banco de Dados
 O sistema utiliza três tabelas principais:
@@ -20,6 +21,7 @@ O sistema utiliza três tabelas principais:
    - nome
    - email (único)
    - senha
+   - telefone (opcional)
 
 2. **livros**: Armazena informações dos livros
    - id (chave primária)
@@ -71,6 +73,12 @@ Este projeto foi criado para fins educacionais, demonstrando:
 
 ## Histórico de Versões
 
+### v1.2.0 (Adaptativa)
+- Adicionado campo 'telefone' à tabela de usuários
+- Pequenas melhorias visuais na tela de login
+- Aprimorado tratamento de erros no processo de autenticação
+- Melhorada validação de dados no cadastro
+
 ### v1.1.0 (Corretiva)
 - Corrigido erro de login não reconhecido
 - Corrigido problema ao cadastrar usuário
@@ -86,7 +94,6 @@ Este projeto foi criado para fins educacionais, demonstrando:
 
 ## Próximas Versões
 O sistema será evoluído através das seguintes versões:
-- v1.2.0: Adaptativa - Ajustes na estrutura do banco de dados
 - v1.3.0: Perfectiva - Melhorias na aparência e desempenho
 - v1.4.0: Evolutiva - Adição de novos recursos
 
