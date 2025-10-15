@@ -8,205 +8,379 @@ Alterações:
 - Melhorada validação de dados no cadastro
 """
 
-import sqlite3
-from datetime import datetime
+from kivy.uix.screenmanager import Screen
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.gridlayout import GridLayout
+from kivy.uix.label import Label
+from kivy.uix.button import Button
+from kivy.uix.textinput import TextInput
+from kivy.uix.scrollview import ScrollView
+from kivy.uix.popup import Popup
+from kivy.app import App
+import re
 
-class Database:
-    def __init__(self, db_name='library.db'):
-        self.db_name = db_name
-        self.connection = None
-    
-    def connect(self):
-        """Establish connection to the database"""
-        self.connection = sqlite3.connect(self.db_name)
-        return self.connection
-    
-    def disconnect(self):
-        """Close database connection"""
-        if self.connection:
-            self.connection.close()
-    
-    def create_tables(self):
-        """Create all necessary tables"""
-        conn = self.connect()
-        cursor = conn.cursor()
+class LoginScreen(Screen):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.layout = BoxLayout(orientation='vertical', padding=50, spacing=20)
         
-        # Create users table
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS usuarios (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                nome TEXT NOT NULL,
-                email TEXT UNIQUE NOT NULL,
-                senha TEXT NOT NULL,
-                telefone TEXT
-            )
-        ''')
+        # Title
+        title = Label(text='Sistema de Biblioteca', font_size=24, size_hint_y=None, height=50, color=(0.2, 0.6, 0.8, 1))
+        self.layout.add_widget(title)
         
-        # Create books table
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS livros (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                titulo TEXT NOT NULL,
-                autor TEXT NOT NULL,
-                status TEXT DEFAULT 'disponivel'
-            )
-        ''')
+        # Email input
+        email_label = Label(text='Email:', size_hint_y=None, height=30, halign='left')
+        self.email_input = TextInput(hint_text='Digite seu email', multiline=False, size_hint_y=None, height=40)
+        self.layout.add_widget(email_label)
+        self.layout.add_widget(self.email_input)
         
-        # Create loans table
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS emprestimos (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                usuario_id INTEGER,
-                livro_id INTEGER,
-                data_emprestimo TEXT,
-                data_devolucao TEXT,
-                FOREIGN KEY (usuario_id) REFERENCES usuarios (id),
-                FOREIGN KEY (livro_id) REFERENCES livros (id)
-            )
-        ''')
+        # Password input
+        password_label = Label(text='Senha:', size_hint_y=None, height=30, halign='left')
+        self.password_input = TextInput(hint_text='Digite sua senha', password=True, multiline=False, size_hint_y=None, height=40)
+        self.layout.add_widget(password_label)
+        self.layout.add_widget(self.password_input)
         
-        conn.commit()
-        self.disconnect()
+        # Login button
+        login_btn = Button(text='Login', size_hint_y=None, height=50, background_color=(0.2, 0.6, 0.8, 1))
+        login_btn.bind(on_press=self.login)
+        self.layout.add_widget(login_btn)
+        
+        # Register button
+        register_btn = Button(text='Criar Conta', size_hint_y=None, height=50, background_color=(0.3, 0.7, 0.9, 1))
+        register_btn.bind(on_press=self.go_to_register)
+        self.layout.add_widget(register_btn)
+        
+        # Error message label
+        self.error_label = Label(text='', color=(1, 0, 0, 1))
+        self.layout.add_widget(self.error_label)
+        
+        self.add_widget(self.layout)
     
-    def add_user(self, nome, email, senha, telefone=None):
-        """Add a new user to the database"""
-        try:
-            conn = self.connect()
-            cursor = conn.cursor()
+    def validate_email(self, email):
+        """Validate email format"""
+        pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        return re.match(pattern, email) is not None
+    
+    def login(self, instance):
+        """Handle login process"""
+        email = self.email_input.text.strip()
+        password = self.password_input.text.strip()
+        
+        # Validate inputs
+        if not email or not password:
+            self.error_label.text = 'Por favor, preencha todos os campos.'
+            return
+        
+        # Validate email format
+        if not self.validate_email(email):
+            self.error_label.text = 'Por favor, insira um email válido.'
+            return
+        
+        app = App.get_running_app()
+        user = app.db.get_user_by_email(email)
+        
+        if user and user[3] == password:  # user[3] is the password field
+            app.current_user = user
+            self.manager.current = 'book_list'
+            self.error_label.text = ''
+            # Clear input fields
+            self.email_input.text = ''
+            self.password_input.text = ''
+        else:
+            self.error_label.text = 'Email ou senha incorretos.'
+    
+    def go_to_register(self, instance):
+        """Navigate to register screen"""
+        self.manager.current = 'register'
+        self.error_label.text = ''
+
+class RegisterScreen(Screen):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.layout = BoxLayout(orientation='vertical', padding=50, spacing=20)
+        
+        # Title
+        title = Label(text='Cadastro de Usuário', font_size=24, size_hint_y=None, height=50)
+        self.layout.add_widget(title)
+        
+        # Name input
+        self.name_input = TextInput(hint_text='Nome', multiline=False, size_hint_y=None, height=40)
+        self.layout.add_widget(self.name_input)
+        
+        # Email input
+        self.email_input = TextInput(hint_text='Email', multiline=False, size_hint_y=None, height=40)
+        self.layout.add_widget(self.email_input)
+        
+        # Phone input
+        self.phone_input = TextInput(hint_text='Telefone (opcional)', multiline=False, size_hint_y=None, height=40)
+        self.layout.add_widget(self.phone_input)
+        
+        # Password input
+        self.password_input = TextInput(hint_text='Senha', password=True, multiline=False, size_hint_y=None, height=40)
+        self.layout.add_widget(self.password_input)
+        
+        # Register button
+        register_btn = Button(text='Cadastrar', size_hint_y=None, height=50)
+        register_btn.bind(on_press=self.register)
+        self.layout.add_widget(register_btn)
+        
+        # Back to login button
+        back_btn = Button(text='Voltar ao Login', size_hint_y=None, height=50)
+        back_btn.bind(on_press=self.go_to_login)
+        self.layout.add_widget(back_btn)
+        
+        # Error message label
+        self.error_label = Label(text='', color=(1, 0, 0, 1))
+        self.layout.add_widget(self.error_label)
+        
+        self.add_widget(self.layout)
+    
+    def validate_email(self, email):
+        """Validate email format"""
+        pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        return re.match(pattern, email) is not None
+    
+    def validate_password(self, password):
+        """Validate password strength"""
+        # At least 6 characters
+        return len(password) >= 6
+    
+    def validate_phone(self, phone):
+        """Validate phone number format (optional)"""
+        if not phone:  # Phone is optional
+            return True
+        # Simple validation: only digits, between 10 and 15 characters
+        return phone.isdigit() and 10 <= len(phone) <= 15
+    
+    def register(self, instance):
+        """Handle user registration"""
+        name = self.name_input.text.strip()
+        email = self.email_input.text.strip()
+        phone = self.phone_input.text.strip()
+        password = self.password_input.text.strip()
+        
+        # Validate inputs
+        if not name or not email or not password:
+            self.error_label.text = 'Por favor, preencha todos os campos obrigatórios.'
+            return
+        
+        # Validate email format
+        if not self.validate_email(email):
+            self.error_label.text = 'Por favor, insira um email válido.'
+            return
+        
+        # Validate phone format (if provided)
+        if not self.validate_phone(phone):
+            self.error_label.text = 'Telefone inválido. Use apenas números (10-15 dígitos).'
+            return
+        
+        # Validate password strength
+        if not self.validate_password(password):
+            self.error_label.text = 'A senha deve ter pelo menos 6 caracteres.'
+            return
+        
+        app = App.get_running_app()
+        user_id = app.db.add_user(name, email, password, phone)
+        
+        if user_id:
+            self.error_label.text = 'Usuário cadastrado com sucesso!'
+            self.error_label.color = (0, 1, 0, 1)  # Green color for success
+            # Clear input fields
+            self.name_input.text = ''
+            self.email_input.text = ''
+            self.phone_input.text = ''
+            self.password_input.text = ''
+        else:
+            self.error_label.text = 'Email já cadastrado. Tente outro.'
+            self.error_label.color = (1, 0, 0, 1)  # Red color for error
+    
+    def go_to_login(self, instance):
+        """Navigate to login screen"""
+        self.manager.current = 'login'
+        self.error_label.text = ''
+        self.error_label.color = (1, 0, 0, 1)  # Reset to red color
+
+class BookListScreen(Screen):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.layout = BoxLayout(orientation='vertical', padding=10, spacing=10)
+        
+        # Top bar with title and profile button
+        top_bar = BoxLayout(orientation='horizontal', size_hint_y=None, height=50)
+        title = Label(text='Livros Disponíveis', font_size=20)
+        profile_btn = Button(text='Perfil', size_hint_x=None, width=100)
+        profile_btn.bind(on_press=self.go_to_profile)
+        top_bar.add_widget(title)
+        top_bar.add_widget(profile_btn)
+        self.layout.add_widget(top_bar)
+        
+        # Scrollable book list
+        self.scroll = ScrollView()
+        self.book_layout = GridLayout(cols=1, spacing=10, size_hint_y=None)
+        self.book_layout.bind(minimum_height=self.book_layout.setter('height'))
+        self.scroll.add_widget(self.book_layout)
+        self.layout.add_widget(self.scroll)
+        
+        # Refresh button
+        refresh_btn = Button(text='Atualizar', size_hint_y=None, height=50)
+        refresh_btn.bind(on_press=self.load_books)
+        self.layout.add_widget(refresh_btn)
+        
+        self.add_widget(self.layout)
+        
+        # Load books when screen is shown
+        self.bind(on_enter=self.load_books)
+    
+    def load_books(self, instance):
+        """Load all available books"""
+        # Clear existing widgets
+        self.book_layout.clear_widgets()
+        
+        app = App.get_running_app()
+        books = app.db.get_available_books()
+        
+        if not books:
+            no_books_label = Label(text='Nenhum livro disponível no momento.')
+            self.book_layout.add_widget(no_books_label)
+            return
+        
+        # Add books to layout
+        for book in books:
+            book_box = BoxLayout(orientation='horizontal', size_hint_y=None, height=60)
+            book_info = Label(text=f'{book[1]} - {book[2]}', halign='left', valign='middle')
+            borrow_btn = Button(text='Emprestar', size_hint_x=None, width=100)
+            borrow_btn.bind(on_press=lambda x, b=book: self.borrow_book(b))
             
-            cursor.execute('''
-                INSERT INTO usuarios (nome, email, senha, telefone)
-                VALUES (?, ?, ?, ?)
-            ''', (nome, email, senha, telefone))
+            book_box.add_widget(book_info)
+            book_box.add_widget(borrow_btn)
+            self.book_layout.add_widget(book_box)
+    
+    def borrow_book(self, book):
+        """Borrow a book"""
+        app = App.get_running_app()
+        app.db.borrow_book(app.current_user[0], book[0])  # user_id, book_id
+        
+        # Show confirmation
+        popup = Popup(title='Sucesso',
+                      content=Label(text=f'Livro "{book[1]}" emprestado com sucesso!'),
+                      size_hint=(0.8, 0.4))
+        popup.open()
+        
+        # Reload books
+        self.load_books(None)
+    
+    def go_to_profile(self, instance):
+        """Navigate to profile screen"""
+        self.manager.current = 'profile'
+
+class ProfileScreen(Screen):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.layout = BoxLayout(orientation='vertical', padding=10, spacing=10)
+        
+        # Top bar with title and back button
+        top_bar = BoxLayout(orientation='horizontal', size_hint_y=None, height=50)
+        title = Label(text='Meu Perfil', font_size=20)
+        back_btn = Button(text='Voltar', size_hint_x=None, width=100)
+        back_btn.bind(on_press=self.go_back)
+        top_bar.add_widget(title)
+        top_bar.add_widget(back_btn)
+        self.layout.add_widget(top_bar)
+        
+        # User info section
+        self.user_info = BoxLayout(orientation='vertical', size_hint_y=None, height=200)
+        self.user_name = Label(text='', font_size=18)
+        self.user_email = Label(text='', font_size=16)
+        self.user_phone = Label(text='', font_size=16)
+        self.user_info.add_widget(self.user_name)
+        self.user_info.add_widget(self.user_email)
+        self.user_info.add_widget(self.user_phone)
+        self.layout.add_widget(self.user_info)
+        
+        # Loans section
+        loans_title = Label(text='Meus Empréstimos', font_size=18, size_hint_y=None, height=40)
+        self.layout.add_widget(loans_title)
+        
+        # Scrollable loans list
+        self.scroll = ScrollView()
+        self.loans_layout = GridLayout(cols=1, spacing=10, size_hint_y=None)
+        self.loans_layout.bind(minimum_height=self.loans_layout.setter('height'))
+        self.scroll.add_widget(self.loans_layout)
+        self.layout.add_widget(self.scroll)
+        
+        # Logout button
+        logout_btn = Button(text='Sair', size_hint_y=None, height=50)
+        logout_btn.bind(on_press=self.logout)
+        self.layout.add_widget(logout_btn)
+        
+        self.add_widget(self.layout)
+        
+        # Load profile when screen is shown
+        self.bind(on_enter=self.load_profile)
+    
+    def load_profile(self, instance):
+        """Load user profile and loans"""
+        app = App.get_running_app()
+        user = app.current_user
+        
+        # Update user info
+        self.user_name.text = f'Nome: {user[1]}'
+        self.user_email.text = f'Email: {user[2]}'
+        
+        # Handle telefone field (may not exist for existing users)
+        if len(user) > 4 and user[4]:
+            phone_text = f'Telefone: {user[4]}'
+        else:
+            phone_text = 'Telefone: Não informado'
+        self.user_phone.text = phone_text
+        
+        # Clear existing loans
+        self.loans_layout.clear_widgets()
+        
+        # Load user loans
+        loans = app.db.get_user_loans(user[0])
+        
+        if not loans:
+            no_loans_label = Label(text='Você não tem empréstimos ativos.')
+            self.loans_layout.add_widget(no_loans_label)
+            return
+        
+        # Add loans to layout
+        for loan in loans:
+            loan_box = BoxLayout(orientation='vertical', size_hint_y=None, height=80)
+            loan_info = Label(text=f'{loan[1]} - {loan[2]}', halign='left')
+            loan_dates = Label(text=f'Emprestado em: {loan[3][:10]}', halign='left', font_size=14)
             
-            conn.commit()
-            user_id = cursor.lastrowid
-            self.disconnect()
-            return user_id
-        except sqlite3.IntegrityError:
-            self.disconnect()
-            return None
-        except Exception as e:
-            print(f"Error adding user: {e}")
-            self.disconnect()
-            return None
-    
-    def get_user_by_email(self, email):
-        """Get user by email"""
-        try:
-            conn = self.connect()
-            cursor = conn.cursor()
+            # Return button (only if not returned yet)
+            if loan[4] is None:  # Not returned yet
+                return_btn = Button(text='Devolver', size_hint_y=None, height=30)
+                return_btn.bind(on_press=lambda x, l=loan: self.return_book(l))
+                loan_box.add_widget(return_btn)
             
-            cursor.execute('''
-                SELECT * FROM usuarios WHERE email = ?
-            ''', (email,))
-            
-            user = cursor.fetchone()
-            self.disconnect()
-            return user
-        except Exception as e:
-            print(f"Error getting user by email: {e}")
-            self.disconnect()
-            return None
+            loan_box.add_widget(loan_info)
+            loan_box.add_widget(loan_dates)
+            self.loans_layout.add_widget(loan_box)
     
-    def add_book(self, titulo, autor):
-        """Add a new book to the database"""
-        try:
-            conn = self.connect()
-            cursor = conn.cursor()
-            
-            cursor.execute('''
-                INSERT INTO livros (titulo, autor)
-                VALUES (?, ?)
-            ''', (titulo, autor))
-            
-            conn.commit()
-            book_id = cursor.lastrowid
-            self.disconnect()
-            return book_id
-        except Exception as e:
-            print(f"Error adding book: {e}")
-            self.disconnect()
-            return None
+    def return_book(self, loan):
+        """Return a borrowed book"""
+        app = App.get_running_app()
+        app.db.return_book(loan[2])  # loan[2] is livro_id
+        
+        # Show confirmation
+        popup = Popup(title='Sucesso',
+                      content=Label(text='Livro devolvido com sucesso!'),
+                      size_hint=(0.8, 0.4))
+        popup.open()
+        
+        # Reload profile
+        self.load_profile(None)
     
-    def get_all_books(self):
-        """Get all books from the database"""
-        conn = self.connect()
-        cursor = conn.cursor()
-        
-        cursor.execute('''
-            SELECT * FROM livros
-        ''')
-        
-        books = cursor.fetchall()
-        self.disconnect()
-        return books
+    def go_back(self, instance):
+        """Go back to book list"""
+        self.manager.current = 'book_list'
     
-    def get_available_books(self):
-        """Get all available books from the database"""
-        conn = self.connect()
-        cursor = conn.cursor()
-        
-        cursor.execute('''
-            SELECT * FROM livros WHERE status = 'disponivel'
-        ''')
-        
-        books = cursor.fetchall()
-        self.disconnect()
-        return books
-    
-    def borrow_book(self, usuario_id, livro_id):
-        """Create a new loan record"""
-        conn = self.connect()
-        cursor = conn.cursor()
-        
-        # Update book status
-        cursor.execute('''
-            UPDATE livros SET status = 'emprestado' WHERE id = ?
-        ''', (livro_id,))
-        
-        # Create loan record
-        cursor.execute('''
-            INSERT INTO emprestimos (usuario_id, livro_id, data_emprestimo)
-            VALUES (?, ?, ?)
-        ''', (usuario_id, livro_id, datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
-        
-        conn.commit()
-        self.disconnect()
-    
-    def return_book(self, livro_id):
-        """Return a book and update loan record"""
-        conn = self.connect()
-        cursor = conn.cursor()
-        
-        # Update book status
-        cursor.execute('''
-            UPDATE livros SET status = 'disponivel' WHERE id = ?
-        ''', (livro_id,))
-        
-        # Update loan record with return date
-        cursor.execute('''
-            UPDATE emprestimos 
-            SET data_devolucao = ? 
-            WHERE livro_id = ? AND data_devolucao IS NULL
-        ''', (datetime.now().strftime('%Y-%m-%d %H:%M:%S'), livro_id))
-        
-        conn.commit()
-        self.disconnect()
-    
-    def get_user_loans(self, usuario_id):
-        """Get all loans for a specific user"""
-        conn = self.connect()
-        cursor = conn.cursor()
-        
-        cursor.execute('''
-            SELECT e.id, l.titulo, l.autor, e.data_emprestimo, e.data_devolucao
-            FROM emprestimos e
-            JOIN livros l ON e.livro_id = l.id
-            WHERE e.usuario_id = ?
-            ORDER BY e.data_emprestimo DESC
-        ''', (usuario_id,))
-        
-        loans = cursor.fetchall()
-        self.disconnect()
-        return loans
+    def logout(self, instance):
+        """Logout and go to login screen"""
+        app = App.get_running_app()
+        app.current_user = None
+        self.manager.current = 'login'
