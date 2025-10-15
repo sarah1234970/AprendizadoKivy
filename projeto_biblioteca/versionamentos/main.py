@@ -1,9 +1,9 @@
 """
-Sistema de Biblioteca – Versão v1.1.0
-Tipo de manutenção: Corretiva
+Sistema de Biblioteca – Versão v1.2.0
+Tipo de manutenção: Adaptativa
 Alterações:
-- Corrigido erro de login não reconhecido
-- Corrigido problema ao cadastrar usuário
+- Adicionado campo 'telefone' à tabela de usuários
+- Pequenas melhorias visuais na tela de login
 - Aprimorado tratamento de erros no processo de autenticação
 - Melhorada validação de dados no cadastro
 """
