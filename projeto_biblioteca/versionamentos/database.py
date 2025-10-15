@@ -1,9 +1,9 @@
 """
-Sistema de Biblioteca – Versão v1.1.0
-Tipo de manutenção: Corretiva
+Sistema de Biblioteca – Versão v1.2.0
+Tipo de manutenção: Adaptativa
 Alterações:
-- Corrigido erro de login não reconhecido
-- Corrigido problema ao cadastrar usuário
+- Adicionado campo 'telefone' à tabela de usuários
+- Pequenas melhorias visuais na tela de login
 - Aprimorado tratamento de erros no processo de autenticação
 - Melhorada validação de dados no cadastro
 """
@@ -37,7 +37,8 @@ class Database:
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 nome TEXT NOT NULL,
                 email TEXT UNIQUE NOT NULL,
-                senha TEXT NOT NULL
+                senha TEXT NOT NULL,
+                telefone TEXT
             )
         ''')
         
@@ -67,16 +68,16 @@ class Database:
         conn.commit()
         self.disconnect()
     
-    def add_user(self, nome, email, senha):
+    def add_user(self, nome, email, senha, telefone=None):
         """Add a new user to the database"""
         try:
             conn = self.connect()
             cursor = conn.cursor()
             
             cursor.execute('''
-                INSERT INTO usuarios (nome, email, senha)
-                VALUES (?, ?, ?)
-            ''', (nome, email, senha))
+                INSERT INTO usuarios (nome, email, senha, telefone)
+                VALUES (?, ?, ?, ?)
+            ''', (nome, email, senha, telefone))
             
             conn.commit()
             user_id = cursor.lastrowid
