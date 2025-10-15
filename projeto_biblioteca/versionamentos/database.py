@@ -1,3 +1,13 @@
+"""
+Sistema de Biblioteca – Versão v1.1.0
+Tipo de manutenção: Corretiva
+Alterações:
+- Corrigido erro de login não reconhecido
+- Corrigido problema ao cadastrar usuário
+- Aprimorado tratamento de erros no processo de autenticação
+- Melhorada validação de dados no cadastro
+"""
+
 import sqlite3
 from datetime import datetime
 
@@ -59,10 +69,10 @@ class Database:
     
     def add_user(self, nome, email, senha):
         """Add a new user to the database"""
-        conn = self.connect()
-        cursor = conn.cursor()
-        
         try:
+            conn = self.connect()
+            cursor = conn.cursor()
+            
             cursor.execute('''
                 INSERT INTO usuarios (nome, email, senha)
                 VALUES (?, ?, ?)
@@ -75,34 +85,48 @@ class Database:
         except sqlite3.IntegrityError:
             self.disconnect()
             return None
+        except Exception as e:
+            print(f"Error adding user: {e}")
+            self.disconnect()
+            return None
     
     def get_user_by_email(self, email):
         """Get user by email"""
-        conn = self.connect()
-        cursor = conn.cursor()
-        
-        cursor.execute('''
-            SELECT * FROM usuarios WHERE email = ?
-        ''', (email,))
-        
-        user = cursor.fetchone()
-        self.disconnect()
-        return user
+        try:
+            conn = self.connect()
+            cursor = conn.cursor()
+            
+            cursor.execute('''
+                SELECT * FROM usuarios WHERE email = ?
+            ''', (email,))
+            
+            user = cursor.fetchone()
+            self.disconnect()
+            return user
+        except Exception as e:
+            print(f"Error getting user by email: {e}")
+            self.disconnect()
+            return None
     
     def add_book(self, titulo, autor):
         """Add a new book to the database"""
-        conn = self.connect()
-        cursor = conn.cursor()
-        
-        cursor.execute('''
-            INSERT INTO livros (titulo, autor)
-            VALUES (?, ?)
-        ''', (titulo, autor))
-        
-        conn.commit()
-        book_id = cursor.lastrowid
-        self.disconnect()
-        return book_id
+        try:
+            conn = self.connect()
+            cursor = conn.cursor()
+            
+            cursor.execute('''
+                INSERT INTO livros (titulo, autor)
+                VALUES (?, ?)
+            ''', (titulo, autor))
+            
+            conn.commit()
+            book_id = cursor.lastrowid
+            self.disconnect()
+            return book_id
+        except Exception as e:
+            print(f"Error adding book: {e}")
+            self.disconnect()
+            return None
     
     def get_all_books(self):
         """Get all books from the database"""
