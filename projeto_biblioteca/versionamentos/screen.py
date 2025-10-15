@@ -1,3 +1,13 @@
+"""
+Sistema de Biblioteca – Versão v1.1.0
+Tipo de manutenção: Corretiva
+Alterações:
+- Corrigido erro de login não reconhecido
+- Corrigido problema ao cadastrar usuário
+- Aprimorado tratamento de erros no processo de autenticação
+- Melhorada validação de dados no cadastro
+"""
+
 from kivy.uix.screenmanager import Screen
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.gridlayout import GridLayout
@@ -7,6 +17,7 @@ from kivy.uix.textinput import TextInput
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.popup import Popup
 from kivy.app import App
+import re
 
 class LoginScreen(Screen):
     def __init__(self, **kwargs):
@@ -41,13 +52,24 @@ class LoginScreen(Screen):
         
         self.add_widget(self.layout)
     
+    def validate_email(self, email):
+        """Validate email format"""
+        pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        return re.match(pattern, email) is not None
+    
     def login(self, instance):
         """Handle login process"""
-        email = self.email_input.text
-        password = self.password_input.text
+        email = self.email_input.text.strip()
+        password = self.password_input.text.strip()
         
+        # Validate inputs
         if not email or not password:
             self.error_label.text = 'Por favor, preencha todos os campos.'
+            return
+        
+        # Validate email format
+        if not self.validate_email(email):
+            self.error_label.text = 'Por favor, insira um email válido.'
             return
         
         app = App.get_running_app()
@@ -57,12 +79,16 @@ class LoginScreen(Screen):
             app.current_user = user
             self.manager.current = 'book_list'
             self.error_label.text = ''
+            # Clear input fields
+            self.email_input.text = ''
+            self.password_input.text = ''
         else:
             self.error_label.text = 'Email ou senha incorretos.'
     
     def go_to_register(self, instance):
         """Navigate to register screen"""
         self.manager.current = 'register'
+        self.error_label.text = ''
 
 class RegisterScreen(Screen):
     def __init__(self, **kwargs):
@@ -101,14 +127,35 @@ class RegisterScreen(Screen):
         
         self.add_widget(self.layout)
     
+    def validate_email(self, email):
+        """Validate email format"""
+        pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        return re.match(pattern, email) is not None
+    
+    def validate_password(self, password):
+        """Validate password strength"""
+        # At least 6 characters
+        return len(password) >= 6
+    
     def register(self, instance):
         """Handle user registration"""
-        name = self.name_input.text
-        email = self.email_input.text
-        password = self.password_input.text
+        name = self.name_input.text.strip()
+        email = self.email_input.text.strip()
+        password = self.password_input.text.strip()
         
+        # Validate inputs
         if not name or not email or not password:
             self.error_label.text = 'Por favor, preencha todos os campos.'
+            return
+        
+        # Validate email format
+        if not self.validate_email(email):
+            self.error_label.text = 'Por favor, insira um email válido.'
+            return
+        
+        # Validate password strength
+        if not self.validate_password(password):
+            self.error_label.text = 'A senha deve ter pelo menos 6 caracteres.'
             return
         
         app = App.get_running_app()
@@ -116,15 +163,20 @@ class RegisterScreen(Screen):
         
         if user_id:
             self.error_label.text = 'Usuário cadastrado com sucesso!'
+            self.error_label.color = (0, 1, 0, 1)  # Green color for success
+            # Clear input fields
             self.name_input.text = ''
             self.email_input.text = ''
             self.password_input.text = ''
         else:
             self.error_label.text = 'Email já cadastrado. Tente outro.'
+            self.error_label.color = (1, 0, 0, 1)  # Red color for error
     
     def go_to_login(self, instance):
         """Navigate to login screen"""
         self.manager.current = 'login'
+        self.error_label.text = ''
+        self.error_label.color = (1, 0, 0, 1)  # Reset to red color
 
 class BookListScreen(Screen):
     def __init__(self, **kwargs):
