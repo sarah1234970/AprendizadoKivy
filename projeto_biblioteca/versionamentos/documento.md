@@ -4,7 +4,7 @@
 Este é um sistema simples de biblioteca educacional desenvolvido em Python usando o framework Kivy para interface gráfica e SQLite para armazenamento de dados. O sistema permite login, cadastro de usuários, empréstimo de livros (CRUD básico) e visualização do perfil do usuário.
 
 ## Versão Atual
-**v1.0.0** - Versão inicial
+**v1.1.0** - Corretiva
 
 ## Funcionalidades
 - Tela de login e cadastro de usuário
@@ -45,6 +45,10 @@ O sistema utiliza três tabelas principais:
    ```
    pip install -r requirements.txt
    ```
+   ou
+   ```
+   pip install kivy[base]
+   ```
 
 ## Execução
 Para executar o sistema, rode o arquivo principal:
@@ -65,9 +69,23 @@ Este projeto foi criado para fins educacionais, demonstrando:
 - Interface gráfica com Kivy
 - Gerenciamento de telas com ScreenManager
 
+## Histórico de Versões
+
+### v1.1.0 (Corretiva)
+- Corrigido erro de login não reconhecido
+- Corrigido problema ao cadastrar usuário
+- Aprimorado tratamento de erros no processo de autenticação
+- Melhorada validação de dados no cadastro
+
+### v1.0.0 (Versão inicial)
+- Implementação básica do sistema de biblioteca
+- Tela de login e cadastro de usuário
+- Tela de lista de livros disponíveis
+- Função simples de empréstimo e devolução (CRUD)
+- Banco de dados SQLite com tabelas de usuarios, livros e emprestimos
+
 ## Próximas Versões
 O sistema será evoluído através das seguintes versões:
-- v1.1.0: Corretiva - Correção de erros
 - v1.2.0: Adaptativa - Ajustes na estrutura do banco de dados
 - v1.3.0: Perfectiva - Melhorias na aparência e desempenho
 - v1.4.0: Evolutiva - Adição de novos recursos
