@@ -1,9 +1,9 @@
 """
-Sistema de Biblioteca – Versão v1.1.0
-Tipo de manutenção: Corretiva
+Sistema de Biblioteca – Versão v1.2.0
+Tipo de manutenção: Adaptativa
 Alterações:
-- Corrigido erro de login não reconhecido
-- Corrigido problema ao cadastrar usuário
+- Adicionado campo 'telefone' à tabela de usuários
+- Pequenas melhorias visuais na tela de login
 - Aprimorado tratamento de erros no processo de autenticação
 - Melhorada validação de dados no cadastro
 """
@@ -25,24 +25,28 @@ class LoginScreen(Screen):
         self.layout = BoxLayout(orientation='vertical', padding=50, spacing=20)
         
         # Title
-        title = Label(text='Sistema de Biblioteca', font_size=24, size_hint_y=None, height=50)
+        title = Label(text='Sistema de Biblioteca', font_size=24, size_hint_y=None, height=50, color=(0.2, 0.6, 0.8, 1))
         self.layout.add_widget(title)
         
         # Email input
-        self.email_input = TextInput(hint_text='Email', multiline=False, size_hint_y=None, height=40)
+        email_label = Label(text='Email:', size_hint_y=None, height=30, halign='left')
+        self.email_input = TextInput(hint_text='Digite seu email', multiline=False, size_hint_y=None, height=40)
+        self.layout.add_widget(email_label)
         self.layout.add_widget(self.email_input)
         
         # Password input
-        self.password_input = TextInput(hint_text='Senha', password=True, multiline=False, size_hint_y=None, height=40)
+        password_label = Label(text='Senha:', size_hint_y=None, height=30, halign='left')
+        self.password_input = TextInput(hint_text='Digite sua senha', password=True, multiline=False, size_hint_y=None, height=40)
+        self.layout.add_widget(password_label)
         self.layout.add_widget(self.password_input)
         
         # Login button
-        login_btn = Button(text='Login', size_hint_y=None, height=50)
+        login_btn = Button(text='Login', size_hint_y=None, height=50, background_color=(0.2, 0.6, 0.8, 1))
         login_btn.bind(on_press=self.login)
         self.layout.add_widget(login_btn)
         
         # Register button
-        register_btn = Button(text='Criar Conta', size_hint_y=None, height=50)
+        register_btn = Button(text='Criar Conta', size_hint_y=None, height=50, background_color=(0.3, 0.7, 0.9, 1))
         register_btn.bind(on_press=self.go_to_register)
         self.layout.add_widget(register_btn)
         
@@ -107,6 +111,10 @@ class RegisterScreen(Screen):
         self.email_input = TextInput(hint_text='Email', multiline=False, size_hint_y=None, height=40)
         self.layout.add_widget(self.email_input)
         
+        # Phone input
+        self.phone_input = TextInput(hint_text='Telefone (opcional)', multiline=False, size_hint_y=None, height=40)
+        self.layout.add_widget(self.phone_input)
+        
         # Password input
         self.password_input = TextInput(hint_text='Senha', password=True, multiline=False, size_hint_y=None, height=40)
         self.layout.add_widget(self.password_input)
@@ -137,20 +145,33 @@ class RegisterScreen(Screen):
         # At least 6 characters
         return len(password) >= 6
     
+    def validate_phone(self, phone):
+        """Validate phone number format (optional)"""
+        if not phone:  # Phone is optional
+            return True
+        # Simple validation: only digits, between 10 and 15 characters
+        return phone.isdigit() and 10 <= len(phone) <= 15
+    
     def register(self, instance):
         """Handle user registration"""
         name = self.name_input.text.strip()
         email = self.email_input.text.strip()
+        phone = self.phone_input.text.strip()
         password = self.password_input.text.strip()
         
         # Validate inputs
         if not name or not email or not password:
-            self.error_label.text = 'Por favor, preencha todos os campos.'
+            self.error_label.text = 'Por favor, preencha todos os campos obrigatórios.'
             return
         
         # Validate email format
         if not self.validate_email(email):
             self.error_label.text = 'Por favor, insira um email válido.'
+            return
+        
+        # Validate phone format (if provided)
+        if not self.validate_phone(phone):
+            self.error_label.text = 'Telefone inválido. Use apenas números (10-15 dígitos).'
             return
         
         # Validate password strength
@@ -159,7 +180,7 @@ class RegisterScreen(Screen):
             return
         
         app = App.get_running_app()
-        user_id = app.db.add_user(name, email, password)
+        user_id = app.db.add_user(name, email, password, phone)
         
         if user_id:
             self.error_label.text = 'Usuário cadastrado com sucesso!'
@@ -167,6 +188,7 @@ class RegisterScreen(Screen):
             # Clear input fields
             self.name_input.text = ''
             self.email_input.text = ''
+            self.phone_input.text = ''
             self.password_input.text = ''
         else:
             self.error_label.text = 'Email já cadastrado. Tente outro.'
@@ -266,11 +288,13 @@ class ProfileScreen(Screen):
         self.layout.add_widget(top_bar)
         
         # User info section
-        self.user_info = BoxLayout(orientation='vertical', size_hint_y=None, height=150)
+        self.user_info = BoxLayout(orientation='vertical', size_hint_y=None, height=200)
         self.user_name = Label(text='', font_size=18)
         self.user_email = Label(text='', font_size=16)
+        self.user_phone = Label(text='', font_size=16)
         self.user_info.add_widget(self.user_name)
         self.user_info.add_widget(self.user_email)
+        self.user_info.add_widget(self.user_phone)
         self.layout.add_widget(self.user_info)
         
         # Loans section
@@ -302,6 +326,8 @@ class ProfileScreen(Screen):
         # Update user info
         self.user_name.text = f'Nome: {user[1]}'
         self.user_email.text = f'Email: {user[2]}'
+        phone_text = f'Telefone: {user[4]}' if user[4] else 'Telefone: Não informado'
+        self.user_phone.text = phone_text
         
         # Clear existing loans
         self.loans_layout.clear_widgets()
